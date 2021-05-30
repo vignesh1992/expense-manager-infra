@@ -13,12 +13,18 @@ variable "ui_code_pipeline_bucket" {
   type        = string
 }
 
-variable "ui_app_bucket" {
-  description = "UI App static site bucket"
-  type        = string
-}
-
 variable "ui_github_connection" {
   description = "UI Pipeline Github connection name"
   type        = string
 }
+
+variable "ui_app_bucket_name" {
+  description = "UI app bucket name"
+  type        = string
+}
+
+variable "tags" {
+  description = "Tags for all the AWS components"
+  type        = map(any)
+}
+

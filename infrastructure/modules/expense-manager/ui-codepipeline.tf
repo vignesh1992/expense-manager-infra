@@ -57,7 +57,7 @@ resource "aws_codepipeline" "ui_codepipeline" {
       namespace       = "DeployVariables"
 
       configuration = {
-        BucketName = var.ui_app_bucket
+        BucketName = var.ui_app_bucket_name
         Extract= true
       }
     }

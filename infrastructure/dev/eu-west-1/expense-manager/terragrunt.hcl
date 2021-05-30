@@ -33,9 +33,8 @@ inputs = {
   ui_code_build_project = "expense-manager-ui-app-build"
 
   ui_code_pipeline_bucket = "expense-manager-pipeline-artefact"
-  ui_app_bucket = "expense-manager-app"
-
-  ui_github_connection = "vignesh-github"
+  ui_app_bucket_name = "expense-manager-ui-app"
   
+  ui_github_connection = "vignesh-github"
 }
 
