@@ -1,6 +1,10 @@
 # API Gateway
 resource "aws_api_gateway_rest_api" "api_gateway" {
   name = "${var.app_name}-apis"
+
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
 resource "aws_api_gateway_resource" "api_gateway_resource" {

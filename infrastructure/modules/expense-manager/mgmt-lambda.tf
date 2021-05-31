@@ -7,15 +7,23 @@ resource "aws_lambda_permission" "get_expense_categories_lambda_permission" {
   source_arn = "arn:aws:execute-api:eu-west-1:077622725059:${aws_api_gateway_rest_api.api_gateway.id}/*/${aws_api_gateway_method.method.http_method}${aws_api_gateway_resource.api_gateway_resource.path}"
 }
 
+data "aws_s3_bucket_object" "lambda_sha256" {
+  bucket = var.mgmt_lambda_bucket_name
+  key    = var.mgmt_lambda_zip
+}
+
 resource "aws_lambda_function" "get_expense_categories" {
   function_name = var.app_name
-  s3_bucket = var.mgmt_lambda_bucket_name
-  s3_key    = var.mgmt_lambda_zip
+
+  s3_bucket         = data.aws_s3_bucket_object.lambda_sha256.bucket
+  s3_key            = data.aws_s3_bucket_object.lambda_sha256.key
+  s3_object_version = data.aws_s3_bucket_object.lambda_sha256.version_id
 
   handler   = "get-expense-categories.handler"
   runtime   = "nodejs14.x"
     
   role      = aws_iam_role.role.arn
+  source_code_hash = "${data.aws_s3_bucket_object.lambda_sha256.body}"
 }
 
 # IAM
