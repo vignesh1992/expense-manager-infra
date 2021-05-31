@@ -1,8 +1,8 @@
-resource "aws_codebuild_project" "ui_code_build" {
-  name          = var.ui_code_build_project
+resource "aws_codebuild_project" "mgmt_code_build" {
+  name          = var.mgmt_code_build_project
   description   = "UI App CodeBuild Project"
   build_timeout = "30"
-  service_role  = "${aws_iam_role.ui_codebuild_role.arn}"
+  service_role  = "${aws_iam_role.mgmt_codebuild_role.arn}"
 
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
@@ -20,8 +20,8 @@ resource "aws_codebuild_project" "ui_code_build" {
   }
 }
 
-resource "aws_iam_role" "ui_codebuild_role" {
-  name = "${var.ui_code_build_project}-role"
+resource "aws_iam_role" "mgmt_codebuild_role" {
+  name = "${var.mgmt_code_build_project}-role"
 
   assume_role_policy = <<EOF
 {
@@ -42,8 +42,8 @@ resource "aws_iam_role" "ui_codebuild_role" {
 EOF
 }
 
-resource "aws_iam_policy" "ui_codebuild_policy" {
-  name        = "${var.ui_code_build_project}-policy"
+resource "aws_iam_policy" "mgmt_codebuild_policy" {
+  name        = "${var.mgmt_code_build_project}-policy"
   path        = "/service-role/"
   description = "Policy used in trust relationship with CodeBuild"
 
@@ -54,7 +54,7 @@ resource "aws_iam_policy" "ui_codebuild_policy" {
     {
       "Effect": "Allow",
       "Action": "codebuild:*",
-      "Resource": "${aws_codebuild_project.ui_code_build.id}"
+      "Resource": "${aws_codebuild_project.mgmt_code_build.id}"
     },
     {
       "Effect": "Allow",
@@ -78,8 +78,8 @@ resource "aws_iam_policy" "ui_codebuild_policy" {
 POLICY
 }
 
-resource "aws_iam_policy_attachment" "ui_codebuild_policy_attachment" {
-  name       = "${var.ui_code_build_project}-policy-attachment"
-  policy_arn = "${aws_iam_policy.ui_codebuild_policy.arn}"
-  roles      = ["${aws_iam_role.ui_codebuild_role.id}"]
+resource "aws_iam_policy_attachment" "mgmt_codebuild_policy_attachment" {
+  name       = "${var.mgmt_code_build_project}-policy-attachment"
+  policy_arn = "${aws_iam_policy.mgmt_codebuild_policy.arn}"
+  roles      = ["${aws_iam_role.mgmt_codebuild_role.id}"]
 }

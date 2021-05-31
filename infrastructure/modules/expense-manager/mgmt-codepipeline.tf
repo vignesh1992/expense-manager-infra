@@ -1,9 +1,9 @@
-resource "aws_codepipeline" "ui_codepipeline" {
-  name     = var.ui_code_pipeline_name
+resource "aws_codepipeline" "mgmt_codepipeline" {
+  name     = var.mgmt_code_pipeline_name
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.ui_codepipeline_bucket.bucket
+    location = aws_s3_bucket.mgmt_codepipeline_bucket.bucket
     type     = "S3"
   }
   stage {
@@ -18,9 +18,9 @@ resource "aws_codepipeline" "ui_codepipeline" {
       output_artifacts = ["SourceArtifact"]
 
       configuration = {
-        ConnectionArn    = aws_codestarconnections_connection.example.arn
-        FullRepositoryId = "vignesh1992/expense-manager-ui"
-        BranchName       = "0.1-working-version"
+        ConnectionArn    = aws_codestarconnections_connection.git_connection.arn
+        FullRepositoryId = "vignesh1992/expense-manager-management"
+        BranchName       = "main"
       }
     }
   }
@@ -39,7 +39,7 @@ resource "aws_codepipeline" "ui_codepipeline" {
       version          = "1"
 
       configuration = {
-        ProjectName = "${aws_codebuild_project.ui_code_build.name}"
+        ProjectName = "${aws_codebuild_project.mgmt_code_build.name}"
       }
     }
   }
@@ -57,25 +57,25 @@ resource "aws_codepipeline" "ui_codepipeline" {
       namespace       = "DeployVariables"
 
       configuration = {
-        BucketName = var.ui_app_bucket_name
+        BucketName = var.mgmt_lambda_bucket_name
         Extract= true
       }
     }
   }
 }
 
-resource "aws_codestarconnections_connection" "example" {
+resource "aws_codestarconnections_connection" "git_connection" {
   name          = var.github_connection
   provider_type = "GitHub"
 }
 
-resource "aws_s3_bucket" "ui_codepipeline_bucket" {
-  bucket = var.ui_code_pipeline_artefact_bucket
+resource "aws_s3_bucket" "mgmt_codepipeline_bucket" {
+  bucket = var.mgmt_code_pipeline_artefact_bucket
   acl    = "private"
 }
 
-resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.ui_code_pipeline_name}-role"
+resource "aws_iam_role" "ui_codepipeline_role" {
+  name = "${var.mgmt_code_pipeline_name}-role"
 
   assume_role_policy = <<EOF
 {
@@ -93,8 +93,8 @@ resource "aws_iam_role" "codepipeline_role" {
 EOF
 }
 
-resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "${var.ui_code_pipeline_name}-policy"
+resource "aws_iam_role_policy" "ui_codepipeline_policy" {
+  name = "${var.mgmt_code_pipeline_name}-policy"
   role = aws_iam_role.codepipeline_role.id
 
   policy = <<EOF

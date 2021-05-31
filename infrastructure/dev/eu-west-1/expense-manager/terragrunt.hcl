@@ -29,12 +29,23 @@ inputs = {
   environment = local.environment  
   tags = local.tags
 
+  app_name = "expense-manager"
+
   ui_code_pipeline_name = "expense-manager-ui-app-pipeline"
   ui_code_build_project = "expense-manager-ui-app-build"
 
-  ui_code_pipeline_bucket = "expense-manager-pipeline-artefact"
   ui_app_bucket_name = "expense-manager-ui-app"
   
-  ui_github_connection = "vignesh-github"
+  github_connection = "vignesh-github"
+  ui_code_pipeline_artefact_bucket = "expense-manager-ui-pipeline-artefact"
+
+
+  mgmt_code_pipeline_name = "expense-manager-management-pipeline"
+  mgmt_code_build_project = "expense-manager-management-build"
+
+  mgmt_code_pipeline_artefact_bucket = "expense-manager-mgmt-pipeline-artefact"
+
+  mgmt_lambda_bucket_name = "expense-manager-management"
+  mgmt_lambda_zip = "expense-manager-lambdas.zip"
 }
 
