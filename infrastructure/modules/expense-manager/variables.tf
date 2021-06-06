@@ -57,3 +57,14 @@ variable "mgmt_code_pipeline_artefact_bucket" {
   description = "Bucket to hold artefacts of pipeline"
   type        = string
 }
+
+
+variable "vpc_id" {
+  description = "Main VPC Id"
+  type        = string
+}
+
+variable "aws_region" {
+  description = "Region name"
+  type = string
+}

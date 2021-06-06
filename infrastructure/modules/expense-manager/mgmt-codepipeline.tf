@@ -57,7 +57,7 @@ resource "aws_codepipeline" "mgmt_codepipeline" {
       namespace       = "DeployVariables"
 
       configuration = {
-        BucketName = var.mgmt_lambda_bucket_name
+        BucketName = aws_s3_bucket.mgmt_app_bucket.bucket
         Extract= true
       }
     }

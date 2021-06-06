@@ -47,5 +47,7 @@ inputs = {
 
   mgmt_lambda_bucket_name = "expense-manager-management"
   mgmt_lambda_zip = "expense-manager-lambdas.zip"
+
+  vpc_id = "vpc-f75f8d8e"
 }
 

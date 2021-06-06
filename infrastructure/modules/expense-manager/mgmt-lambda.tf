@@ -1,34 +1,32 @@
-resource "aws_lambda_permission" "get_expense_categories_lambda_permission" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.get_expense_categories.function_name
-  principal     = "apigateway.amazonaws.com"
+resource "aws_lambda_layer_version" "dependencies_layer" {
+  s3_bucket  = aws_s3_bucket.mgmt_app_bucket.bucket
+  s3_key     = "dependency_layer.zip"
+  layer_name = "expense-manager-dependencies-layer"
 
-  source_arn = "arn:aws:execute-api:eu-west-1:077622725059:${aws_api_gateway_rest_api.api_gateway.id}/*/${aws_api_gateway_method.method.http_method}${aws_api_gateway_resource.api_gateway_resource.path}"
-}
+  compatible_runtimes = ["nodejs14.x"]
 
-data "aws_s3_bucket_object" "lambda_sha256" {
-  bucket = var.mgmt_lambda_bucket_name
-  key    = var.mgmt_lambda_zip
+  depends_on = [aws_s3_bucket_public_access_block.management_s3bucket_access_block]
 }
 
 resource "aws_lambda_function" "get_expense_categories" {
   function_name = var.app_name
 
-  s3_bucket         = data.aws_s3_bucket_object.lambda_sha256.bucket
-  s3_key            = data.aws_s3_bucket_object.lambda_sha256.key
-  s3_object_version = data.aws_s3_bucket_object.lambda_sha256.version_id
-
+  s3_bucket         = aws_s3_bucket.mgmt_app_bucket.bucket
+  s3_key            = var.mgmt_lambda_zip
   handler   = "get-expense-categories.handler"
   runtime   = "nodejs14.x"
-    
-  role      = aws_iam_role.role.arn
-  source_code_hash = "${data.aws_s3_bucket_object.lambda_sha256.body}"
+  role      = aws_iam_role.lambda_role.arn
+
+  layers = [aws_lambda_layer_version.dependencies_layer.arn]
+  vpc_config {
+    subnet_ids         = data.aws_subnet_ids.private_subnets.ids
+    security_group_ids = [aws_security_group.expense_manager_mgmt_sg.id]
+  }
 }
 
 # IAM
-resource "aws_iam_role" "role" {
-  name = "${var.mgmt_lambda_bucket_name}-role"
+resource "aws_iam_role" "lambda_role" {
+  name = "${var.mgmt_lambda_bucket_name}-lambda-role"
 
   assume_role_policy = <<POLICY
 {
@@ -45,4 +43,39 @@ resource "aws_iam_role" "role" {
   ]
 }
 POLICY
+}
+
+resource "aws_iam_role_policy_attachment" "iam_policy_for_event_validator_role_attachement" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.iam_policy_for_db.arn
+}
+
+resource "aws_iam_policy" "iam_policy_for_db" {
+  name = "iam-role-policy-for-expense-manager"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:CreateNetworkInterface",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeInstances",
+          "ec2:AttachNetworkInterface"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Action" : [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource" : "arn:aws:logs:*:*:*",
+        "Effect" : "Allow"
+      }
+    ]
+  })
 }
