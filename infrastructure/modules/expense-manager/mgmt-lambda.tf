@@ -9,7 +9,7 @@ resource "aws_lambda_layer_version" "dependencies_layer" {
 }
 
 resource "aws_lambda_function" "get_expense_categories" {
-  function_name = var.app_name
+  function_name = "get-expense-categories"
 
   s3_bucket         = aws_s3_bucket.mgmt_app_bucket.bucket
   s3_key            = var.mgmt_lambda_zip
