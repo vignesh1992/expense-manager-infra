@@ -44,24 +44,24 @@ resource "aws_codepipeline" "mgmt_codepipeline" {
     }
   }
 
-  stage {
-    name = "Deploy"
+  # stage {
+  #   name = "Deploy"
 
-    action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "S3"
-      input_artifacts = ["BuildArtifact"]
-      version         = "1"
-      namespace       = "DeployVariables"
+  #   action {
+  #     name            = "Deploy"
+  #     category        = "Deploy"
+  #     owner           = "AWS"
+  #     provider        = "S3"
+  #     input_artifacts = ["BuildArtifact"]
+  #     version         = "1"
+  #     namespace       = "DeployVariables"
 
-      configuration = {
-        BucketName = aws_s3_bucket.mgmt_app_bucket.bucket
-        Extract= true
-      }
-    }
-  }
+  #     configuration = {
+  #       BucketName = aws_s3_bucket.mgmt_app_bucket.bucket
+  #       Extract= true
+  #     }
+  #   }
+  # }
 }
 
 resource "aws_codestarconnections_connection" "git_connection" {
